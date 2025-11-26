@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+
+    <style>
+        body {
+        margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+              background: linear-gradient(135deg, #6dd5fa, #2980b9);
+            height: 100vh;
+            display: flex;
+        justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .container {
+        width: 350px;
+            text-align: center;
+        }
+
+          .search-box {
+              margin-bottom: 20px;
+        }
+
+        
+                .search-box input {
+            width: 70%;
+            padding: 10px;
+        border-radius: 5px;
+            border: none;
+        outline: none;
+        }
+
+        .search-box button {
+        padding: 10px 15px;
+            border: none;
+            background: #fff;
+        color: #2980b9;
+        border-radius: 5px;
+            cursor: pointer;
+         font-weight: bold;
+        }
+
+        .weather-card {
+            background: rgba(255, 255, 255, 0.2);
+        padding: 20px;
+         border-radius: 15px;
+               margin-top: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .weather-card img {
+            width: 70px;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 10px;
+        }
+
+        .hidden {
+        display: none;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container">
+        <h1>Weather App</h1>
+
+        <div class="search-box">
+            <input type="text" id="locationInput" placeholder="Enter city name..." />
+            <button onclick="getWeather()">Search</button>
+        </div>
+
+        <div id="weatherResult" class="weather-card hidden">
+            <h2 id="cityName"></h2>
+            <img id="weatherIcon" />
+            <h3 id="temperature"></h3>
+            <p id="condition"></p>
+            <p id="humidity"></p>
+            <p id="wind"></p>
+        </div>
+
+        <p id="errorMsg" class="error hidden"></p>
+    </div>
+
+    <script>
+        async function getWeather() {
+            const location = document.getElementById("locationInput").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+            const weatherCard = document.getElementById("weatherResult");
+
+            if (!location) {
+                errorMsg.textContent = "Please enter a city name.";
+                errorMsg.classList.remove("hidden");
+                weatherCard.classList.add("hidden");
+                return;
+            }
+
+            errorMsg.classList.add("hidden");
+
+            const apiKey = "68bfd920f92446d4911143646252611";
+            const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error("Location not found");
+                }
+
+                const data = await response.json();
+
+                document.getElementById("cityName").textContent =
+                    `${data.location.name}, ${data.location.country}`;
+
+                document.getElementById("temperature").textContent =
+                    `${data.current.temp_c}°C`;
+
+                document.getElementById("condition").textContent =
+                    data.current.condition.text;
+
+                document.getElementById("weatherIcon").src =
+                    data.current.condition.icon;
+
+                document.getElementById("humidity").textContent =
+                    `Humidity: ${data.current.humidity}%`;
+
+                document.getElementById("wind").textContent =
+                    `Wind: ${data.current.wind_kph} km/h`;
+
+                weatherCard.classList.remove("hidden");
+
+            } catch (error) {
+                errorMsg.textContent = "City not found. Try again.";
+                errorMsg.classList.remove("hidden");
+                weatherCard.classList.add("hidden");
+            }
+        }
+    </script>
+
+</body>
+</html>
